@@ -20,7 +20,7 @@ START:
 
 	;스택을 0x0000:0000~0ㅌ0000:FFFF영역에 64KB로 생성
 	mov	ax,	0x0000	;스택 세그먼트의 시작 어드레스를 세그먼트 레지스터 값으로 변환
-	mov ss, x		; SS세그먼트 레지스터에 설정
+	mov ss, ax		; SS세그먼트 레지스터에 설정
 	mov sp,	0xFFFE	; SP 레지스터의 어드레스를 0xFFFE로 설정
 	mov bp,	0xFFFE	; BP 레지스터의 어드레스를 0xFFFE로 설정
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -47,11 +47,11 @@ START:
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;	OS이미지를 로딩한다는 메시지 출력
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	push ImageLOADINGMESSAGE	;출력할 메세지의 어드레스를 스택에 삽입
+	push IMAGELOADINGMESSAGE	;출력할 메세지의 어드레스를 스택에 삽입
 	push 1						;화면 Y좌표 를 스택에 삽입
 	push 0						;화면 X좌표를 스택에 삽입
 	call PRINTMESSAGE			;Printmessage 함수 호출
-	call sp, 6					;삽입한 파라미터 제거
+	add sp, 6					;삽입한 파라미터 제거
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;	디스크에서 OS이미지를 로딩
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,7 +89,7 @@ READDATA:							;디스크를 읽는 코드의 시작
 	mov ah,0x02						; BIOS서비스 번호 2
 	mov al,0x01						;읽을 섹터수는 1
 	mov ch, byte[TRACKNUMBER]		;읽을 트랙 번호 설정
-	mov c1, byte[SECTORNUMBER]		;읽을 섹터 넘버 설정
+	mov cl, byte[SECTORNUMBER]		;읽을 섹터 넘버 설정
 	mov dh, byte[HEADNUMBER]		;읽을 헤드 번호 설정
 	mov dl, 0x00					;읽을 드라이브 번호 설정
 	int 0x13						;start interrupt service
@@ -121,7 +121,7 @@ READEND:
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;	OS이미지가 완료되었다는 메세지를 출력
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	push LODINGCOMPLETEMESSAGE	;	출력할 메시지의 어드레스를 스택에 삽입
+	push LOADINGCOMPLETEMESSAGE	;	출력할 메시지의 어드레스를 스택에 삽입
 	push 1						;	화면좌표 y = 1을 삽입
 	push 20						;	화면좌표 x = 20을 삽입
 	call PRINTMESSAGE			;	함수호출
@@ -166,7 +166,7 @@ PRINTMESSAGE:
 	;mov di, 0					;디아이 레지스터 를 초기화( 문자열 대상 인덱스 레지스터)
 	mov ax,word[bp +6]			;파라미터 2 화면좌표 y를 ax레지스터에 설정.
 	mov si,160					;한문자를 나타내는 바이트수를 (2) SI레지스터에 설정
-	mov si						;AX레지스터와 SI레지스터를 곱하여 화면 X어드레스를 더해서
+	mul si						;AX레지스터와 SI레지스터를 곱하여 화면 X어드레스를 더해서
 	mov di,ax					;실제 비디오 메모리 어드레스를 계산
 
 	;출력할 문자열의 어드레스
@@ -200,7 +200,7 @@ PRINTMESSAGE:
 MESSAGE1:	db 'MINT64 OS Boot Loader Start~!!',0	;출력할 메세지 정의
 													;마지막은 0으로 설정하여 메세지루ㅡ에서 문자열이 종료되었음을 알 수 있도록 함.
 DISKERRORMESSAGE:			db	'DISK ERROR',0
-IMAGELOADINGMASSAGE:		db	'OS IMAGE Loading...',0
+IMAGELOADINGMESSAGE:		db	'OS IMAGE Loading...',0
 LOADINGCOMPLETEMESSAGE:		db	'Complete',0
 
 ;디스크 읽기와 관련된 변수들
