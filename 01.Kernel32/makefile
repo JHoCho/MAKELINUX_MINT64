@@ -3,7 +3,7 @@
 ##################################################
 NASM32 = nasm
 GCC32 = x86_64-pc-linux-gcc.exe -c -m32 -ffreestanding
-LD32 = x86-64-pc-linux-ld.exe -melf_i386 -T ../elf_i386.x -nostdlib -e Main -Ttext 0x10200
+LD32 = x86_64-pc-linux-ld.exe -melf_i386 -T ../elf_i386.x -nostdlib -e Main -Ttext 0x10200
 OBJCOPY32 = x86_64-pc-linux-objcopy -j .text -j .data -j .rodata -j .bss -S -O binary
 
 OBJECTDIRECTORY = Temp
@@ -22,7 +22,7 @@ $(OBJECTDIRECTORY)/EntryPoint.bin : $(SOURCEDIRECTORY)/EntryPoint.s
 
 dep:
 	@echo === Make Dependancy File ===
-	make 0C $(OBJECTDIRECTORY)	-f ../makefile InternalDependency
+	make -C $(OBJECTDIRECTORY)	-f ../makefile InternalDependency
 	@echo === Dependancy Search Complete ===
 ExecuteInternalBuild: dep
 	make -C $(OBJECTDIRECTORY) -f ../makefile Kernel32.elf
